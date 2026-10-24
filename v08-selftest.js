@@ -48,7 +48,7 @@ function start(){
  const home=document.getElementById('home');if(!home||document.getElementById('jt-selftest-v08'))return;
  const panel=document.createElement('div');panel.className='card';panel.id='jt-selftest-v08';
  const title=document.createElement('h2');title.textContent='JT 자동 검증실 · v0.8';
- const desc=document.createElement('p');desc.className='notice';desc.textContent='15개 항목을 예시 데이터로 자동 검사합니다. 기존 거래·평가가격은 수정하지 않습니다. 실제 시세 연동 테스트는 아닙니다.';
+ const desc=document.createElement('p');desc.className='notice';desc.textContent='14개 항목을 예시 데이터로 자동 검사합니다. 기존 거래·평가가격은 수정하지 않습니다. 실제 시세 연동 테스트는 아닙니다.';
  const button=document.createElement('button');button.type='button';button.textContent='자동 테스트 실행';
  const out=document.createElement('div');out.style.cssText='white-space:pre-wrap;line-height:1.6;overflow-wrap:anywhere;margin-top:12px';out.setAttribute('role','status');
  button.addEventListener('click',()=>{const r=run(),passed=r.filter(x=>x.pass).length;out.textContent='검증 결과: '+passed+'/'+r.length+' 통과\n'+r.map(x=>(x.pass?'✓ ':'✗ ')+x.label).join('\n')+'\n※ 테스트용 계산 모듈 검증이며 앱 전체 동작이나 실시간 시세의 정확성을 보장하지 않습니다.';});
