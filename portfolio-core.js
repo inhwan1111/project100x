@@ -78,6 +78,14 @@
   function validateLedger(trades, prices = {}) {
     if (!Array.isArray(trades)) return {ok:false,errors:[fail('TRADES','거래 내역은 배열이어야 합니다.')],accounts:{}};
     const accounts = {}, errors = [];
+    // Evaluate() intentionally skips trades from other accounts. Validate unknown
+    // account records here so malformed ledger entries cannot silently pass.
+    for (let i = 0; i < trades.length; i++) {
+      const t = trades[i];
+      if (t && typeof t === 'object' && !Array.isArray(t) && !ACCOUNTS.includes(t.account)) {
+        errors.push(fail('ACCOUNT', '알 수 없는 계좌입니다.', i));
+      }
+    }
     for (const name of ACCOUNTS) {const result = evaluate(trades, prices, name);accounts[name]=result;errors.push(...result.errors);}
     return {ok:errors.length===0, errors, accounts};
   }
