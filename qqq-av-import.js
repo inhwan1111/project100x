@@ -1,7 +1,7 @@
 /* PROJECT 100X: Alpha Vantage daily CSV importer. User downloads CSV from provider; no keys stored. */
 (()=>{'use strict';
-function init(){const host=document.getElementById('home');if(!host||document.getElementById('p100x-av-import'))return;
-const card=document.createElement('div');card.className='card';card.id='p100x-av-import';
+function init(){const host=document.getElementById('home');if(!host)return;
+const card=document.getElementById('p100x-av-import')||document.createElement('div');if(card.dataset.ready==='yes')return;card.replaceChildren();card.dataset.ready='yes';card.className='card';card.id='p100x-av-import';
 const h=document.createElement('h2');h.textContent='QQQ · 실제 시세 CSV 가져오기';card.append(h);
 const p=document.createElement('p');p.textContent='Alpha Vantage TIME_SERIES_DAILY CSV (timestamp,open,high,low,close,volume)를 기기에서만 변환합니다. API 키를 앱에 입력하거나 저장하지 않습니다. 원본 가격 진위·수정주가·배당은 별도 확인이 필요합니다.';card.append(p);
 const label=document.createElement('label');label.textContent='Alpha Vantage CSV 파일 선택';const input=document.createElement('input');input.type='file';input.accept='.csv,text/csv';label.append(input);card.append(label);
@@ -18,7 +18,7 @@ const csv='date,open,high,low,close,volume\n'+bars.map(b=>[b.date,b.open,b.high,
 const url=URL.createObjectURL(new Blob([csv],{type:'text/csv;charset=utf-8'}));const a=document.createElement('a');a.href=url;a.download='QQQ-alpha-vantage-p2.csv';document.body.append(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),1000);
 out.textContent=bars.length+'거래일 형식 검증 통과. P2용 CSV 다운로드를 요청했습니다. 실제 시세 정확성·수정주가·출처 권한은 검증되지 않았습니다.';
 }catch(e){out.textContent='변환 중단: '+e.message;}};
-host.append(card);
+if(!card.isConnected)host.prepend(card);
 }
 function start(){init();if(document.getElementById('p100x-av-import'))return;const observer=new MutationObserver(()=>{init();if(document.getElementById('p100x-av-import'))observer.disconnect();});observer.observe(document.body,{childList:true,subtree:true});setTimeout(()=>observer.disconnect(),15000);}
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',start);else start();
