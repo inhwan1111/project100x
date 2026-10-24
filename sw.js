@@ -1,6 +1,6 @@
 /* PROJECT 100X offline cache v0.9.3: network-first app shell, no stale HTML on successful fetch. */
-const CACHE='project100x-v093-20261024';
-const ASSETS=['./','./index.html','./app.js','./manifest.webmanifest','./icon.svg','./icon-192.png','./icon-512.png','./portfolio-core.js','./p0-integration.js','./p1-holdings.js','./v09-market-data.js','./p0-regression.js','./p2-backtest-core.js','./p2-backtest-lab.js'];
+const CACHE='project100x-v094-20261024';
+const ASSETS=['./','./index.html','./app.js','./manifest.webmanifest','./icon.svg','./icon-192.png','./icon-512.png','./portfolio-core.js','./p0-integration.js','./p1-holdings.js','./v09-market-data.js','./p0-regression.js','./p2-backtest-core.js','./p2-backtest-lab.js','./meeting-room.js'];
 self.addEventListener('install',e=>{e.waitUntil(caches.open(CACHE).then(async cache=>{await Promise.allSettled(ASSETS.map(p=>cache.add(p)));}).then(()=>self.skipWaiting()))});
 self.addEventListener('activate',e=>{e.waitUntil(caches.keys().then(keys=>Promise.all(keys.filter(k=>k.startsWith('project100x-')&&k!==CACHE).map(k=>caches.delete(k)))).then(()=>self.clients.claim()))});
 self.addEventListener('fetch',e=>{
