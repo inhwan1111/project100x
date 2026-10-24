@@ -34,6 +34,13 @@ function backtest(bars,strategy,options={}){
  if(!strategies.includes(strategy))return {ok:false,reason:'알 수 없는 전략'};
  const hold=options.holdDays??5,fee=options.costPct??0.15;
  if(!Number.isInteger(hold)||hold<1||hold>30||typeof fee!=='number'||!Number.isFinite(fee)||fee<0||fee>=10)return {ok:false,reason:'보유기간·거래비용 설정 오류'};
+ // Data quality gate: missing trading days cannot be reliably distinguished
+ // from holidays here, but duplicate/unsorted dates and invalid bars are blocked.
+ // Reject unadjusted extreme gaps rather than silently reporting misleading P&L.
+ for(let i=1;i<bars.length;i++){
+  const gap=bars[i].open/bars[i-1].close;
+  if(gap<0.5||gap>2)return {ok:false,reason:'전일 종가 대비 50% 초과 가격 갭 발견: 액면분할·수정주가·데이터 오류 확인 필요 ('+bars[i].date+')'};
+ }
  const trades=[];let nextEligible=30;
  for(let i=30;i+hold-1<bars.length;i++){
   if(i<nextEligible)continue;
