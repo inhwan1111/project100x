@@ -13,4 +13,7 @@ for(const s of B.strategies){const r=B.backtest(bars,s);assert.equal(r.ok,true);
 for(const s of B.strategies.slice(3))assert.equal(B.backtest(bars,s).count,0);
 const future=bars.map(x=>({...x}));future[64].close*=2;
 for(const s of B.strategies)assert.deepEqual(B.signal(bars,40,s),B.signal(future,40,s));
+const suspicious=bars.map(x=>({...x}));suspicious[40].open*=3;suspicious[40].high*=3;
+assert.equal(B.backtest(suspicious,'추세 눌림목').ok,false);
+assert.match(B.backtest(suspicious,'추세 눌림목').reason,/가격 갭/);
 console.log('PROJECT 100X backtest regression: PASS');
