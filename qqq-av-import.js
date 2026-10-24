@@ -20,5 +20,6 @@ out.textContent=bars.length+'거래일 형식 검증 통과. P2용 CSV 다운로
 }catch(e){out.textContent='변환 중단: '+e.message;}};
 host.append(card);
 }
-function start(){init();if(document.getElementById('p100x-av-import'))return;const observer=new MutationObserver(()=>{init();if(document.getElementById('p100x-av-import'))observer.disconnect();});observer.observe(document.body,{childList:true,subtree:true});setTimeout(()=>observer.disconnect(),15000);}\nif(document.readyState==='loading')document.addEventListener('DOMContentLoaded',start);else start();
+function start(){init();if(document.getElementById('p100x-av-import'))return;const observer=new MutationObserver(()=>{init();if(document.getElementById('p100x-av-import'))observer.disconnect();});observer.observe(document.body,{childList:true,subtree:true});setTimeout(()=>observer.disconnect(),15000);}
+if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',start);else start();
 })();
