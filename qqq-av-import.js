@@ -4,11 +4,11 @@ function init(){const host=document.getElementById('home');if(!host)return;
 const card=document.getElementById('p100x-av-import')||document.createElement('div');if(card.dataset.ready==='yes')return;card.replaceChildren();card.dataset.ready='yes';card.className='card';card.id='p100x-av-import';
 const h=document.createElement('h2');h.textContent='QQQ · 실제 시세 CSV 가져오기';card.append(h);
 const p=document.createElement('p');p.textContent='Alpha Vantage TIME_SERIES_DAILY CSV (timestamp,open,high,low,close,volume)를 기기에서만 변환합니다. API 키를 앱에 입력하거나 저장하지 않습니다. 원본 가격 진위·수정주가·배당은 별도 확인이 필요합니다.';card.append(p);
-const label=document.createElement('label');label.textContent='Alpha Vantage CSV 파일 선택';const input=document.createElement('input');input.type='file';input.accept='.csv,text/csv';label.append(input);card.append(label);
+const label=document.createElement('label');label.textContent='Alpha Vantage CSV 파일 선택';const input=document.createElement('input');input.type='file';input.accept='*/*';label.append(input);card.append(label);const selected=document.createElement('p');selected.textContent='선택된 파일 없음';card.append(selected);input.addEventListener('change',()=>{selected.textContent=input.files?.[0]?'선택한 파일: '+input.files[0].name:'선택된 파일 없음';});
 const btn=document.createElement('button');btn.type='button';btn.textContent='QQQ 데이터 검증 및 P2 CSV 생성';card.append(btn);
 const out=document.createElement('p');out.setAttribute('role','status');card.append(out);
 btn.onclick=async()=>{out.textContent='';try{
-const file=input.files?.[0];if(!file)throw Error('CSV 파일을 먼저 선택하세요.');if(file.size>1024*1024)throw Error('파일이 1MB를 초과합니다.');
+const file=input.files?.[0];if(!file)throw Error('CSV 파일을 먼저 선택하세요.');if(file.size>1024*1024)throw Error('파일이 1MB를 초과합니다.');if(!/\.csv$/i.test(file.name))throw Error('CSV 파일만 변환할 수 있습니다.');
 const raw=(await file.text()).replace(/^\uFEFF/,'').trim().split(/\r?\n/),header=raw.shift()?.toLowerCase().split(',').map(x=>x.trim());
 const fields=['timestamp','open','high','low','close','volume'];if(!header||fields.some(x=>!header.includes(x)))throw Error('Alpha Vantage 일별 CSV가 아닙니다. 헤더를 확인하세요.');
 if(raw.length<35||raw.length>5000)throw Error('35~5000개 거래일 데이터가 필요합니다.');
