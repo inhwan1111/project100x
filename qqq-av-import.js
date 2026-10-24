@@ -5,11 +5,14 @@ const card=document.getElementById('p100x-av-import')||document.createElement('d
 const h=document.createElement('h2');h.textContent='QQQ · 실제 시세 CSV 가져오기';card.append(h);
 const p=document.createElement('p');p.textContent='Alpha Vantage TIME_SERIES_DAILY CSV (timestamp,open,high,low,close,volume)를 기기에서만 변환합니다. API 키를 앱에 입력하거나 저장하지 않습니다. 원본 가격 진위·수정주가·배당은 별도 확인이 필요합니다.';card.append(p);
 const label=document.createElement('label');label.textContent='Alpha Vantage CSV 파일 선택';const input=document.createElement('input');input.type='file';input.accept='*/*';label.append(input);card.append(label);const selected=document.createElement('p');selected.textContent='선택된 파일 없음';card.append(selected);input.addEventListener('change',()=>{selected.textContent=input.files?.[0]?'선택한 파일: '+input.files[0].name:'선택된 파일 없음';});
+const pasteLabel=document.createElement('label');pasteLabel.textContent='또는 CSV 내용 직접 붙여넣기';card.append(pasteLabel);
+const paste=document.createElement('textarea');paste.rows=7;paste.placeholder='timestamp,open,high,low,close,volume\\n2026-10-23,405,415,400,412,1200000';paste.style.width='100%';paste.style.boxSizing='border-box';paste.setAttribute('aria-label','CSV 텍스트 붙여넣기');card.append(paste);
+const help=document.createElement('p');help.textContent='파일을 선택할 수 없다면 CSV 내용 전체를 복사해 붙여넣으세요. API 키가 포함된 URL은 입력하지 마세요. 데이터는 기기 안에서만 처리합니다.';card.append(help);
 const btn=document.createElement('button');btn.type='button';btn.textContent='QQQ 데이터 검증 및 P2 CSV 생성';card.append(btn);
 const out=document.createElement('p');out.setAttribute('role','status');card.append(out);
 btn.onclick=async()=>{out.textContent='';try{
-const file=input.files?.[0];if(!file)throw Error('CSV 파일을 먼저 선택하세요.');if(file.size>1024*1024)throw Error('파일이 1MB를 초과합니다.');if(!/\.csv$/i.test(file.name))throw Error('CSV 파일만 변환할 수 있습니다.');
-const raw=(await file.text()).replace(/^\uFEFF/,'').trim().split(/\r?\n/),header=raw.shift()?.toLowerCase().split(',').map(x=>x.trim());
+const file=input.files?.[0];const pasted=paste.value.trim();if(!file&&!pasted)throw Error('CSV 파일을 선택하거나 CSV 내용을 붙여넣으세요.');if(pasted.length>1024*1024)throw Error('붙여넣은 내용이 1MB를 초과합니다.');if(file&&file.size>1024*1024)throw Error('파일이 1MB를 초과합니다.');if(file&&!/\\.csv$/i.test(file.name))throw Error('CSV 파일만 변환할 수 있습니다.');
+const raw=(pasted||await file.text()).replace(/^\uFEFF/,'').trim().split(/\r?\n/),header=raw.shift()?.toLowerCase().split(',').map(x=>x.trim());
 const fields=['timestamp','open','high','low','close','volume'];if(!header||fields.some(x=>!header.includes(x)))throw Error('Alpha Vantage 일별 CSV가 아닙니다. 헤더를 확인하세요.');
 if(raw.length<35||raw.length>5000)throw Error('35~5000개 거래일 데이터가 필요합니다.');
 const bars=raw.map((line,i)=>{const cols=line.split(',').map(x=>x.trim());if(cols.length!==header.length)throw Error((i+2)+'행 열 개수 오류');const b={date:cols[header.indexOf('timestamp')]};for(const k of fields.slice(1)){const val=cols[header.indexOf(k)];if(!val)throw Error((i+2)+'행 누락: '+k);b[k]=Number(val);}return b;}).sort((a,b)=>a.date.localeCompare(b.date));
