@@ -3,7 +3,7 @@ const fs=require('node:fs');
 const path=require('node:path');
 (async()=>{
  const key=process.env.ALPHA_VANTAGE_API_KEY;
- if(!key){console.log('SKIP: ALPHA_VANTAGE_API_KEY secret not configured');return;}
+ if(!key)throw Error('ALPHA_VANTAGE_API_KEY secret not configured');
  const url=new URL('https://www.alphavantage.co/query');
  for(const [k,v] of Object.entries({function:'TIME_SERIES_DAILY',symbol:'QQQ',outputsize:'compact',datatype:'csv',apikey:key}))url.searchParams.set(k,v);
  const response=await fetch(url,{signal:AbortSignal.timeout(20000)});
