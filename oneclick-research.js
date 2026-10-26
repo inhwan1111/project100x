@@ -18,7 +18,7 @@ async function run(out,btn){
  try{
   const [statusResponse,csvResponse]=await Promise.all([
    fetch('./market-data/status.json?t='+Date.now(),{cache:'no-store'}),
-   fetch('./market-data/qqq-daily.csv?t='+Date.now(),{cache:'no-store'})
+   fetch('./market-data/QQQ-daily.csv?t='+Date.now(),{cache:'no-store'})
   ]);
   if(!statusResponse.ok||!csvResponse.ok)throw Error('무료 시세 파일을 가져오지 못했습니다.');
   const status=await statusResponse.json(),bars=parseCSV(await csvResponse.text());
