@@ -1,9 +1,10 @@
 (()=>{'use strict';
 const el=(t,s)=>{const n=document.createElement(t);n.textContent=s;return n};
 function init(){
-const box=document.getElementById('p100x-oneclick');if(!box)return;
-const button=box.querySelector('button');if(!button)return;
-const panel=el('div','');panel.id='p100x-history-panel';box.append(panel);
+const box=document.getElementById('p100x-oneclick');if(!box){setTimeout(init,300);return;}
+const button=box.querySelector('button');if(!button){setTimeout(init,300);return;}
+if(document.getElementById('p100x-history-panel'))return;
+const panel=el('div','');panel.id='p100x-history-panel';panel.append(el('h3','과거 전략 성과 · 대기 중'));panel.append(el('p','위 분석 버튼을 누르면 결과가 표시됩니다.'));box.append(panel);
 const run=async()=>{
 panel.replaceChildren(el('p','과거 성과 계산 중…'));
 try{
