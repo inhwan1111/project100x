@@ -1,8 +1,8 @@
 {
   "symbol": "QQQ",
   "rows": 100,
-  "latestDate": "2026-10-27",
-  "updatedAt": "2026-10-27T23:54:24.410Z",
+  "latestDate": "2026-10-28",
+  "updatedAt": "2026-10-28T23:58:09.509Z",
   "source": "Alpha Vantage TIME_SERIES_DAILY",
   "adjusted": false
 }
