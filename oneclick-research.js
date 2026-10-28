@@ -27,8 +27,21 @@ async function run(out,btn){
   if(!Number.isFinite(age)||age< -1||age>4)throw Error('시세 갱신 시각이 오래되었거나 올바르지 않습니다.');
   out.replaceChildren();
   out.append(el('p','대상: QQQ · '+bars.length+'거래일 · 마지막 거래일: '+bars.at(-1).date));
-  out.append(el('p','시세 검증 통과. 현재는 원클릭 분석의 데이터 점검 단계이며, 매수 추천을 생성하지 않습니다.'));
-  const list=el('ul');for(const name of strategies){const li=el('li',name+' — '+(['뉴스·가격 역행','저평가 회복','이벤트 모멘텀'].includes(name)?'외부 근거 데이터 미연결':'전략 신호 통합 검증 전'));list.append(li);}out.append(list);
+  out.append(el('p','시세 형식 검증 통과. 과거 종가 기준 연구 신호이며, 매수 추천이나 미래 성과 예측이 아닙니다.'));
+  const engine=globalThis.Project100XBacktest;
+  if(!engine||typeof engine.validate!=='function'||typeof engine.signal!=='function')throw Error('기존 전략 엔진을 불러오지 못했습니다.');
+  const checked=engine.validate(bars);if(!checked.ok)throw Error('전략 엔진 데이터 검사 실패: '+checked.reason);
+  out.append(el('p','신호 기준일: '+bars.at(-1).date+' 종가 · 평가 대상: QQQ · 거래 실행 없음'));
+  const list=el('ul');
+  for(const name of strategies){
+   let message='외부 근거 데이터 미연결 — 평가 보류';
+   if(['추세 눌림목','거래량 돌파','과매도 반등'].includes(name)){
+    const result=engine.signal(bars,bars.length,name);
+    message=(result.active?'연구 신호 감지':'연구 신호 없음')+' · '+result.reason;
+   }
+   list.append(el('li',name+' — '+message));
+  }
+  out.append(list);
   out.append(el('p','뉴스: 미연결 · 기관/외국인 수급: 미연결 · 시장심리: 미연결 · 추천: 0건 (검증 전)'));
  }catch(err){out.replaceChildren(el('p','⚠️ 분석 보류: '+err.message+' 기존 가상투자 데이터는 변경되지 않았습니다.'));}
  finally{btn.disabled=false;}
@@ -37,8 +50,8 @@ function init(){
  const home=document.getElementById('home');if(!home||document.getElementById('p100x-oneclick'))return;
  const box=el('div');box.className='card';box.id='p100x-oneclick';
  box.append(el('h2','원클릭 통합 분석 · 개발 미리보기'));
- box.append(el('p','현재 QQQ 무료 데이터 유효성만 확인합니다. 뉴스·수급·6대 전략 추천은 아직 구현되지 않았습니다.'));
- const btn=el('button','데이터 점검 시작');btn.type='button';
+ box.append(el('p','QQQ 무료 데이터 검사 후 기존 3개 기술적 전략의 연구 신호를 표시합니다. 뉴스·수급·나머지 전략과 종목 추천은 미구현입니다.'));
+ const btn=el('button','QQQ 데이터·전략 신호 분석');btn.type='button';
  const out=el('div');out.setAttribute('role','status');out.setAttribute('aria-live','polite');
  btn.addEventListener('click',()=>run(out,btn));box.append(btn,out);home.append(box);
 }
