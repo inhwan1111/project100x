@@ -15,4 +15,6 @@ jobs:
         with:
           node-version: '22'
       - name: Run deterministic backtest tests
-        run: node tests/backtest-regression.test.js
+        run: |
+          node tests/backtest-regression.test.js
+          node tests/qqq-integration.test.js
