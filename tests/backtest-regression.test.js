@@ -5,7 +5,7 @@ const engine = require('../p2-backtest-core.js');
 const day = n => new Date(Date.UTC(2026,0,1+n)).toISOString().slice(0,10);
 function sample(n=65) {
   return Array.from({length:n},(_,i)=>({
-    date:day(i),open:100+i,high:102+i,low:99+i,close:101+i,volume:1000
+    date:day(i),open:100+i,high:102+i,low:88+i,close:101+i,volume:1000
   }));
 }
 function test(name,fn){fn();console.log('PASS',name);}
