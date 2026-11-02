@@ -22,11 +22,12 @@ async function run(out,btn){
   ]);
   if(!statusResponse.ok||!csvResponse.ok)throw Error('무료 시세 파일을 가져오지 못했습니다.');
   const status=await statusResponse.json(),bars=parseCSV(await csvResponse.text());
-  if(status.symbol!=='QQQ'||status.latestDate!==bars.at(-1).date)throw Error('시세 상태와 실제 CSV 날짜가 일치하지 않습니다.');
+  if(status.symbol!=='QQQ'||status.latestDate!==bars.at(-1).date||status.rows!==bars.length)throw Error('시세 상태와 실제 CSV의 날짜 또는 거래일 수가 일치하지 않습니다.');
   const age=(Date.now()-Date.parse(status.updatedAt))/86400000;
-  if(!Number.isFinite(age)||age< -1||age>4)throw Error('시세 갱신 시각이 오래되었거나 올바르지 않습니다.');
+  if(!Number.isFinite(age)||age< -1)throw Error('시세 갱신 시각이 올바르지 않습니다.');
+  if(age>4){out.replaceChildren(el('h3','분석 보류 · 시세 갱신 필요'),el('p','QQQ 최근 거래일: '+bars.at(-1).date+' · 수집 시각: '+status.updatedAt+' · 경과 '+age.toFixed(1)+'일'),el('p','데이터가 4일을 초과하여 새로운 연구 신호를 산출하지 않았습니다. 수집 자동화 점검이 필요합니다.'),el('p','뉴스·수급·시장심리: 미연결 · 추천: 0건 · 가상투자 기록 변경 없음'));return;}
   out.replaceChildren();
-  out.append(el('p','대상: QQQ · '+bars.length+'거래일 · 마지막 거래일: '+bars.at(-1).date));
+  out.append(el('p','대상: QQQ · '+bars.length+'거래일 · 마지막 거래일: '+bars.at(-1).date+' · 수집 시각: '+status.updatedAt));
   out.append(el('p','시세 형식 검증 통과. 과거 종가 기준 연구 신호이며, 매수 추천이나 미래 성과 예측이 아닙니다.'));
   const engine=globalThis.Project100XBacktest;
   if(!engine||typeof engine.validate!=='function'||typeof engine.signal!=='function')throw Error('기존 전략 엔진을 불러오지 못했습니다.');
