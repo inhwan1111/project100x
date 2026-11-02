@@ -46,4 +46,8 @@ test('reported net return uses two-sided costs',()=>{
  assert.ok(r.count>0,'Expected at least one trade');
  for(const t of r.trades)assert.ok(Math.abs(t.netPct-(t.exit*0.9985/(t.entry*1.0015)-1)*100)<1e-10);
 });
+test('invalid holding period rejected',()=>assert.equal(engine.backtest(sample(),'추세 눌림목',{holdDays:0}).ok,false));
+test('unadjusted extreme opening gap rejected',()=>{const b=sample();b[40].open=1000;b[40].high=1002;assert.equal(engine.backtest(b,'추세 눌림목').ok,false);});
+test('unconnected fundamental and news strategies cannot trade',()=>{for(const s of engine.strategies.slice(3))assert.equal(engine.backtest(sample(),s).count,0);});
+test('trades cannot overlap for the same strategy',()=>{const r=engine.backtest(sample(),'추세 눌림목',{holdDays:5});assert.ok(r.count>1);for(let i=1;i<r.trades.length;i++)assert.ok(r.trades[i].entryDate>r.trades[i-1].exitDate);});
 console.log('Regression tests passed');
