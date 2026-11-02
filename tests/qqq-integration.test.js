@@ -26,11 +26,17 @@ const expected={
  '거래량 돌파':[],
  '과매도 반등':[['2026-10-23','2026-10-26','2026-10-30']]
 };
+const expectedNet={
+ '추세 눌림목':[1.4899,-0.5863,-1.9217,2.7893,-0.7945,-3.5520],
+ '거래량 돌파':[],
+ '과매도 반등':[-2.6360]
+};
 for(const [strategy,dates] of Object.entries(expected)){
  const r=engine.backtest(bars,strategy,{holdDays:5,costPct:0.15});
  assert.equal(r.ok,true,strategy+': backtest valid');
  assert.equal(r.count,dates.length,strategy+': count');
  assert.deepEqual(r.trades.map(t=>[t.signalDate,t.entryDate,t.exitDate]),dates,strategy+': trade dates');
+ assert.deepEqual(r.trades.map(t=>Number(t.netPct.toFixed(4))),expectedNet[strategy],strategy+': historical net returns');
  for(const t of r.trades){
   assert.ok(t.signalDate<t.entryDate&&t.entryDate<=t.exitDate);
   assert.ok(Math.abs(t.netPct-(t.exit*.9985/(t.entry*1.0015)-1)*100)<1e-10);
