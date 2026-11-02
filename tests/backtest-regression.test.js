@@ -38,10 +38,12 @@ test('zero trades reports null rates',()=>{
 });
 test('entry occurs after signal date',()=>{
  const r=engine.backtest(sample(),'추세 눌림목');
+ assert.ok(r.count>0,'Expected at least one trade');
  for(const t of r.trades)assert.ok(t.signalDate<t.entryDate);
 });
 test('reported net return uses two-sided costs',()=>{
  const r=engine.backtest(sample(),'추세 눌림목',{holdDays:5,costPct:0.15});
+ assert.ok(r.count>0,'Expected at least one trade');
  for(const t of r.trades)assert.ok(Math.abs(t.netPct-(t.exit*0.9985/(t.entry*1.0015)-1)*100)<1e-10);
 });
 console.log('Regression tests passed');
