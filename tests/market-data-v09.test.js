@@ -1,0 +1,24 @@
+/* PROJECT 100X v0.9 CSV parser tests. Run: node tests/market-data-v09.test.js */
+'use strict';
+const assert=require('node:assert/strict');
+const fs=require('node:fs');
+const path=require('node:path');
+const vm=require('node:vm');
+const code=fs.readFileSync(path.join(__dirname,'../v09-market-data.js'),'utf8');
+const context={window:{},document:{readyState:'loading',addEventListener(){}},Date,Number,Map,Set,Error};
+vm.runInNewContext(code,context,{filename:'v09-market-data.js',timeout:2000});
+const parse=context.window.Project100XMarketDataV09.parse;
+const header='symbol,date,close,currency,source';
+const row='QQQ,2026-10-30,690.49,USD,manual';
+const valid=header+'\n'+row;
+assert.equal(parse(valid).length,1);
+assert.equal(parse(valid)[0].close,690.49);
+assert.throws(()=>parse(header+'\nQQQ,2026-02-30,690.49,USD,manual'),/유효하지/);
+assert.throws(()=>parse(header+'\nQQQ,2026-13-01,690.49,USD,manual'),/유효하지/);
+assert.throws(()=>parse(header+',symbol\n'+row+',QQQ'),/중복/);
+assert.throws(()=>parse(header+'\nQQQ,2026-10-30,690.49,USD'),/열 개수/);
+assert.throws(()=>parse(header+'\n'+row+',extra'),/열 개수/);
+assert.throws(()=>parse(header+'\nQQQ,2026-10-30,-1,USD,manual'),/유효하지/);
+assert.throws(()=>parse(header+'\nQQQ,2026-10-30,690.49,USD,"unfinished'),/닫히지/);
+assert.equal(parse(header+'\nQQQ,2026-10-30,690.49,USD,"manual, verified"')[0].source,'manual, verified');
+console.log('PASS v0.9 CSV parser: 10 assertions');
