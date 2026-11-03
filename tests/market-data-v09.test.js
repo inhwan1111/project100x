@@ -21,4 +21,7 @@ assert.throws(()=>parse(header+'\n'+row+',extra'),/열 개수/);
 assert.throws(()=>parse(header+'\nQQQ,2026-10-30,-1,USD,manual'),/유효하지/);
 assert.throws(()=>parse(header+'\nQQQ,2026-10-30,690.49,USD,"unfinished'),/닫히지/);
 assert.equal(parse(header+'\nQQQ,2026-10-30,690.49,USD,"manual, verified"')[0].source,'manual, verified');
-console.log('PASS v0.9 CSV parser: 10 assertions');
+assert.throws(()=>parse(valid+'\n'+row),/중복/);
+assert.throws(()=>parse(valid+'\nQQQ,2026-10-29,680.00,KRW,manual'),/통화/);
+assert.equal(parse(valid+'\nQQQ,2026-10-29,680.00,USD,manual').length,2);
+console.log('PASS v0.9 CSV parser: 13 assertions');
