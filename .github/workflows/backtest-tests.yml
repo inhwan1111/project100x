@@ -3,6 +3,7 @@ on:
   push:
     paths:
       - 'p2-backtest-core.js'
+      - 'scripts/collect-market-data.cjs'
       - 'tests/**'
       - 'market-data/**'
       - '.github/workflows/backtest-tests.yml'
@@ -24,3 +25,5 @@ jobs:
         run: node tests/backtest-integrity.test.js
       - name: Validate real QQQ dataset
         run: node tests/qqq-data.test.js
+      - name: Check QQQ incremental history merge
+        run: node tests/qqq-history-merge.test.js
