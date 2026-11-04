@@ -4,6 +4,7 @@ on:
     paths:
       - 'p2-backtest-core.js'
       - 'tests/**'
+      - 'market-data/**'
       - '.github/workflows/backtest-tests.yml'
   pull_request:
   workflow_dispatch:
@@ -21,3 +22,5 @@ jobs:
         run: node tests/smoke.js
       - name: Check historical isolation
         run: node tests/backtest-integrity.test.js
+      - name: Validate real QQQ dataset
+        run: node tests/qqq-data.test.js
