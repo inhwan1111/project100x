@@ -1,6 +1,15 @@
 name: PROJECT 100X market data
 on:
   workflow_dispatch:
+    inputs:
+      history_mode:
+        description: 'QQQ data request size (full may require paid API access)'
+        required: true
+        type: choice
+        default: compact
+        options:
+          - compact
+          - full
   schedule:
     - cron: '30 23 * * 1-5'
 permissions:
@@ -19,7 +28,10 @@ jobs:
       - name: Fetch and validate QQQ
         env:
           ALPHA_VANTAGE_API_KEY: ${{ secrets.ALPHA_VANTAGE_API_KEY }}
+          QQQ_HISTORY_MODE: ${{ inputs.history_mode || 'compact' }}
         run: node scripts/collect-market-data.cjs
+      - name: Validate merged QQQ data before commit
+        run: node tests/qqq-data.test.js
       - name: Commit validated public market data if changed
         run: |
           if [ ! -f market-data/QQQ-daily.csv ]; then exit 0; fi
