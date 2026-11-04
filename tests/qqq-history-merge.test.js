@@ -1,0 +1,13 @@
+'use strict';
+const assert=require('node:assert/strict');
+const {parse,merge}=require('../scripts/collect-market-data.cjs');
+const h='timestamp,open,high,low,close,volume\n';
+const old=parse(h+'2026-11-02,100,102,99,101,1000\n2026-10-30,99,101,98,100,900\n','old');
+const incoming=parse(h+'2026-11-03,101,103,100,102,1200\n2026-11-02,100.00,102,99,101,1000\n','incoming');
+const result=merge(old,incoming);
+assert.equal(result.added,1);
+assert.deepEqual(result.sorted.map(x=>x.date),['2026-11-03','2026-11-02','2026-10-30']);
+assert.equal(merge(new Map(result.sorted.map(x=>[x.date,x])),incoming).added,0);
+assert.throws(()=>merge(old,parse(h+'2026-11-02,100,102,99,101.5,1000\n','changed')),/Conflicting/);
+assert.throws(()=>parse(h+'2026-11-02,100,102,99,101,1000\n2026-11-02,100,102,99,101,1000\n','duplicate'),/date\/order/);
+console.log('PASS: append-only QQQ merge, idempotency, overlap conflicts, duplicate rejection');
