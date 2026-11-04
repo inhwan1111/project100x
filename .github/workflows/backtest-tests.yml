@@ -1,0 +1,23 @@
+name: PROJECT 100X backtest checks
+on:
+  push:
+    paths:
+      - 'p2-backtest-core.js'
+      - 'tests/**'
+      - '.github/workflows/backtest-tests.yml'
+  pull_request:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - name: Run smoke test
+        run: node tests/smoke.js
+      - name: Check historical isolation
+        run: node tests/backtest-integrity.test.js
