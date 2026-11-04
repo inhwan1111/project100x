@@ -27,3 +27,5 @@ jobs:
         run: node tests/qqq-data.test.js
       - name: Check QQQ incremental history merge
         run: node tests/qqq-history-merge.test.js
+      - name: Check long-history compatibility
+        run: node tests/long-history.test.js
