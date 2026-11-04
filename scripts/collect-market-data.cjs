@@ -39,12 +39,13 @@ function merge(existing,incoming){
 async function main(){
  const key=process.env.ALPHA_VANTAGE_API_KEY;
  if(!key)throw Error('ALPHA_VANTAGE_API_KEY secret not configured');
+ const mode=process.env.QQQ_HISTORY_MODE==='full'?'full':'compact';
  const url=new URL('https://www.alphavantage.co/query');
- for(const [k,v] of Object.entries({function:'TIME_SERIES_DAILY',symbol:'QQQ',outputsize:'compact',datatype:'csv',apikey:key}))url.searchParams.set(k,v);
+ for(const [k,v] of Object.entries({function:'TIME_SERIES_DAILY',symbol:'QQQ',outputsize:mode,datatype:'csv',apikey:key}))url.searchParams.set(k,v);
  const response=await fetch(url,{signal:AbortSignal.timeout(20000)});
  if(!response.ok)throw Error('HTTP '+response.status);
  const incoming=parse(await response.text(),'provider');
- if(incoming.size<35||incoming.size>500)throw Error('Unexpected provider rows: '+incoming.size);
+ if(incoming.size<35||incoming.size>(mode==='full'?10000:500))throw Error('Unexpected provider rows: '+incoming.size);
  const dir=path.join(process.cwd(),'market-data');
  const file=path.join(dir,'QQQ-daily.csv'),statusFile=path.join(dir,'status.json');
  const existing=fs.existsSync(file)?parse(fs.readFileSync(file,'utf8'),'existing'):new Map();
@@ -56,7 +57,7 @@ async function main(){
  const status={symbol:'QQQ',rows:sorted.length,latestDate:sorted[0].date,updatedAt:new Date().toISOString(),source:'Alpha Vantage TIME_SERIES_DAILY',adjusted:false};
  fs.writeFileSync(file,csv);
  fs.writeFileSync(statusFile,JSON.stringify(status,null,2)+'\n');
- console.log('Validated QQQ history: '+sorted.length+' rows, '+added+' newly added');
+ console.log('Validated QQQ history ('+mode+'): '+sorted.length+' rows, '+added+' newly added');
 }
 if(require.main===module)main().catch(e=>{console.error('Collection failed:',e.message);process.exitCode=1});
 module.exports={parse,merge};
