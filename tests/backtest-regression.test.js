@@ -50,4 +50,13 @@ test('invalid holding period rejected',()=>assert.equal(engine.backtest(sample()
 test('unadjusted extreme opening gap rejected',()=>{const b=sample();b[40].open=1000;b[40].high=1002;assert.equal(engine.backtest(b,'추세 눌림목').ok,false);});
 test('unconnected fundamental and news strategies cannot trade',()=>{for(const s of engine.strategies.slice(3))assert.equal(engine.backtest(sample(),s).count,0);});
 test('trades cannot overlap for the same strategy',()=>{const r=engine.backtest(sample(),'추세 눌림목',{holdDays:5});assert.ok(r.count>1);for(let i=1;i<r.trades.length;i++)assert.ok(r.trades[i].entryDate>r.trades[i-1].exitDate);});
+test('future OHLCV cannot alter prior technical signals',()=>{
+ const b=sample(80);
+ for(let i=35;i<70;i++)for(const strategy of engine.strategies.slice(0,3)){
+  const before=engine.signal(b,i,strategy);
+  const changed=b.map(x=>({...x}));
+  changed[i+1].open+=20;changed[i+1].high+=30;changed[i+1].close+=25;changed[i+1].volume+=50000;
+  assert.deepEqual(engine.signal(changed,i,strategy),before);
+ }
+});
 console.log('Regression tests passed');
