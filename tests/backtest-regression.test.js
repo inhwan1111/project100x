@@ -59,4 +59,21 @@ test('future OHLCV cannot alter prior technical signals',()=>{
   assert.deepEqual(engine.signal(changed,i,strategy),before);
  }
 });
+test('invalid calendar date rejected without throwing',()=>{
+ const b=sample();b[10].date='2026-02-30';
+ assert.equal(engine.validate(b).ok,false);
+});
+test('backtest does not mutate input OHLCV',()=>{
+ const b=sample(),before=JSON.stringify(b);
+ const r=engine.backtest(b,'추세 눌림목');
+ assert.equal(r.ok,true);
+ assert.equal(JSON.stringify(b),before);
+});
+test('future appended bars cannot alter completed trades',()=>{
+ const b=sample(65),extended=sample(80);
+ const a=engine.backtest(b,'추세 눌림목',{holdDays:5});
+ const z=engine.backtest(extended,'추세 눌림목',{holdDays:5});
+ assert.equal(a.ok,true);assert.equal(z.ok,true);
+ assert.deepEqual(z.trades.filter(t=>t.exitDate<=b[b.length-1].date),a.trades);
+});
 console.log('Regression tests passed');
