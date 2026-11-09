@@ -44,3 +44,26 @@ for(const [strategy,dates] of Object.entries(expected)){
  console.log('PASS',strategy,r.count,'completed trades');
 }
 console.log('QQQ integration checks passed; research only, not a predictive validation.');
+
+/* Additional data-integrity and chronology regression guards. */
+const clone=()=>bars.map(b=>({...b}));
+{
+ const b=clone();b[40].date=b[39].date;
+ assert.equal(engine.validate(b).ok,false,'duplicate date must be rejected');
+}
+{
+ const b=clone();b[40].close=0;
+ assert.equal(engine.validate(b).ok,false,'zero price must be rejected');
+}
+{
+ const b=clone();b[40].open=b[39].close*2.1;
+ b[40].high=Math.max(b[40].high,b[40].open);
+ assert.equal(engine.backtest(b,'추세 눌림목').ok,false,'extreme unadjusted gap must block backtest');
+}
+assert.equal(engine.backtest(bars,'추세 눌림목',{costPct:-1}).ok,false,'negative transaction fee rejected');
+for(let i=31;i<90;i++){
+ const changed=clone();
+ for(let j=i;j<changed.length;j++){changed[j].close*=1.3;changed[j].volume*=4;}
+ assert.equal(engine.signal(changed,i,'추세 눌림목').active,engine.signal(bars,i,'추세 눌림목').active,'future bars cannot affect signal at '+i);
+}
+console.log('PASS QQQ data integrity and future-data isolation: 4 checks + 59 signal comparisons');
