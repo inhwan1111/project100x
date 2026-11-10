@@ -76,4 +76,25 @@ test('future appended bars cannot alter completed trades',()=>{
  assert.equal(a.ok,true);assert.equal(z.ok,true);
  assert.deepEqual(z.trades.filter(t=>t.exitDate<=b[b.length-1].date),a.trades);
 });
+test('zero-volume data never triggers volume breakout',()=>{
+ const b=sample(65).map(x=>({...x,volume:0}));
+ const r=engine.backtest(b,'거래량 돌파');
+ assert.equal(r.ok,true);
+ assert.equal(r.count,0);
+});
+test('single-day holding exits at entry day close',()=>{
+ const r=engine.backtest(sample(65),'추세 눌림목',{holdDays:1});
+ assert.equal(r.ok,true);
+ assert.ok(r.count>0);
+ for(const t of r.trades)assert.equal(t.entryDate,t.exitDate);
+});
+test('fee increases cannot improve a fixed trade net return',()=>{
+ const b=sample(65);
+ const a=engine.backtest(b,'추세 눌림목',{costPct:0});
+ const z=engine.backtest(b,'추세 눌림목',{costPct:0.5});
+ assert.equal(a.ok,true);assert.equal(z.ok,true);
+ assert.ok(a.count>0);
+ assert.equal(a.count,z.count);
+ for(let i=0;i<a.count;i++)assert.ok(z.trades[i].netPct<a.trades[i].netPct);
+});
 console.log('Regression tests passed');
