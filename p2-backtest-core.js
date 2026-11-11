@@ -39,7 +39,7 @@ function backtest(bars,strategy,options={}){
  // Reject unadjusted extreme gaps rather than silently reporting misleading P&L.
  for(let i=1;i<bars.length;i++){
   const gap=bars[i].open/bars[i-1].close;
-  if(gap<0.5||gap>2)return {ok:false,reason:'전일 종가 대비 50% 초과 가격 갭 발견: 액면분할·수정주가·데이터 오류 확인 필요 ('+bars[i].date+')'};
+  if(gap<0.5||gap>1.5)return {ok:false,reason:'전일 종가 대비 50% 초과 가격 갭 발견: 액면분할·수정주가·데이터 오류 확인 필요 ('+bars[i].date+')'};
  }
  const trades=[];let nextEligible=30;
  for(let i=30;i+hold-1<bars.length;i++){
