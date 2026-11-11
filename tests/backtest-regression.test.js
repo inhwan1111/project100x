@@ -104,4 +104,18 @@ test('maximum supported 30-day holding period is accepted',()=>{
 test('transaction costs of 10 percent or more are rejected',()=>{
  assert.equal(engine.backtest(sample(),'추세 눌림목',{costPct:10}).ok,false);
 });
+test('upward opening gaps above 50 percent are rejected',()=>{
+ const b=sample();b[40].open=b[39].close*1.6;b[40].high=b[40].open+1;
+ const r=engine.backtest(b,'추세 눌림목');
+ assert.equal(r.ok,false);
+ assert.match(r.reason,/50%/);
+});
+test('exactly 50 percent upward opening gap is not rejected by gap gate',()=>{
+ const b=sample();b[40].open=b[39].close*1.5;b[40].high=b[40].open+1;
+ assert.equal(engine.backtest(b,'추세 눌림목').ok,true);
+});
+test('downward opening gaps above 50 percent are rejected',()=>{
+ const b=sample();b[40].open=b[39].close*.49;
+ assert.equal(engine.backtest(b,'추세 눌림목').ok,false);
+});
 console.log('Regression tests passed');
