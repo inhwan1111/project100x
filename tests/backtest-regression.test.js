@@ -97,4 +97,11 @@ test('fee increases cannot improve a fixed trade net return',()=>{
  assert.equal(a.count,z.count);
  for(let i=0;i<a.count;i++)assert.ok(z.trades[i].netPct<a.trades[i].netPct);
 });
+test('maximum supported 30-day holding period is accepted',()=>{
+ const r=engine.backtest(sample(80),'추세 눌림목',{holdDays:30});
+ assert.equal(r.ok,true);
+});
+test('transaction costs of 10 percent or more are rejected',()=>{
+ assert.equal(engine.backtest(sample(),'추세 눌림목',{costPct:10}).ok,false);
+});
 console.log('Regression tests passed');
