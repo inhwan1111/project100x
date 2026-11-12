@@ -31,4 +31,8 @@ assert.equal(future.status,'사용 금지','future-dated quote must never pass')
 assert.match(future.reason,/미래/);
 const veryOld=assess(parse(header+'\nQQQ,2020-01-02,690.49,USD,manual'))[0];
 assert.equal(veryOld.status,'사용 금지');
-console.log('PASS v0.9 CSV parser and freshness: 16 assertions');
+assert.throws(()=>parse(header+'\nQQQ,2026-10-30,690.49,USD,man"ual'),/따옴표/);
+assert.throws(()=>parse(header+'\nQQQ,2026-10-30,690.49,USD,"manual"garbage'),/따옴표/);
+assert.throws(()=>parse(header+'\nQQQ,2026-10-30,690.49,USD,"manual""'),/닫히지/);
+assert.equal(parse(header+'\nQQQ,2026-10-30,690.49,USD,"manual ""verified"""')[0].source,'manual "verified"');
+console.log('PASS v0.9 CSV parser and freshness: 20 assertions');
