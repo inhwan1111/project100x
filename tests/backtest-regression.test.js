@@ -118,4 +118,16 @@ test('downward opening gaps above 50 percent are rejected',()=>{
  const b=sample();b[40].open=b[39].close*.49;
  assert.equal(engine.backtest(b,'추세 눌림목').ok,false);
 });
+test('signal rejects missing and out-of-range indices without throwing',()=>{
+ const b=sample(65);
+ for(const i of [-1,29,65,66,35.5,NaN,Infinity,undefined]){
+  assert.equal(engine.signal(b,i,'추세 눌림목').active,false);
+ }
+ assert.equal(engine.signal(null,40,'추세 눌림목').active,false);
+});
+test('last available bar is not treated as a future entry bar',()=>{
+ const b=sample(65);
+ assert.equal(engine.signal(b,b.length,'추세 눌림목').active,false);
+ assert.equal(typeof engine.signal(b,b.length-1,'추세 눌림목').active,'boolean');
+});
 console.log('Regression tests passed');
