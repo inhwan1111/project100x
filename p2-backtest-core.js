@@ -16,7 +16,7 @@ function validate(bars){
  return {ok:true};
 }
 function signal(bars,i,strategy){
- if(!strategies.includes(strategy)||i<30)return {active:false,reason:'지표 부족 또는 미지원 전략'};
+ if(!Array.isArray(bars)||!Number.isInteger(i)||i<30||i>=bars.length||!strategies.includes(strategy))return {active:false,reason:'지표 부족·인덱스 범위 오류 또는 미지원 전략'};
  const recent=bars.slice(i-20,i),last=bars[i-1],ma20=mean(recent.map(x=>x.close)),vol20=mean(recent.map(x=>x.volume));
  const prior=bars.slice(i-21,i-1),high20=Math.max(...prior.map(x=>x.high));
  if(strategy==='추세 눌림목')return {active:last.close>ma20&&last.low<=ma20*1.015&&last.close>bars[i-6].close,reason:'20일선 근처 상승 추세'};
