@@ -130,4 +130,12 @@ test('last available bar is not treated as a future entry bar',()=>{
  assert.equal(engine.signal(b,b.length,'추세 눌림목').active,false);
  assert.equal(typeof engine.signal(b,b.length-1,'추세 눌림목').active,'boolean');
 });
+test('invalid options are rejected without throwing',()=>{
+ for(const options of [null,[],0,'invalid',false]){
+  const result=engine.backtest(sample(),'추세 눌림목',options);
+  assert.equal(result.ok,false);
+  assert.match(result.reason,/설정 오류/);
+ }
+ assert.equal(engine.backtest(sample(),'추세 눌림목').ok,true);
+});
 console.log('Regression tests passed');
