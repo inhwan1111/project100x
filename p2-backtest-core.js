@@ -32,6 +32,7 @@ function signal(bars,i,strategy){
 function backtest(bars,strategy,options={}){
  const v=validate(bars);if(!v.ok)return {ok:false,reason:v.reason};
  if(!strategies.includes(strategy))return {ok:false,reason:'알 수 없는 전략'};
+ if(options===null||typeof options!=='object'||Array.isArray(options))return {ok:false,reason:'보유기간·거래비용 설정 오류'};
  const hold=options.holdDays??5,fee=options.costPct??0.15;
  if(!Number.isInteger(hold)||hold<1||hold>30||typeof fee!=='number'||!Number.isFinite(fee)||fee<0||fee>=10)return {ok:false,reason:'보유기간·거래비용 설정 오류'};
  // Data quality gate: missing trading days cannot be reliably distinguished
