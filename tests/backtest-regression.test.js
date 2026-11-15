@@ -138,4 +138,12 @@ test('invalid options are rejected without throwing',()=>{
  }
  assert.equal(engine.backtest(sample(),'추세 눌림목').ok,true);
 });
+test('fractional and unsafe OHLCV volumes are rejected',()=>{
+ for(const volume of [0.5, -0.5, Number.MAX_SAFE_INTEGER+1]){
+  const b=sample();b[40].volume=volume;
+  assert.equal(engine.validate(b).ok,false);
+  assert.equal(engine.backtest(b,'추세 눌림목').ok,false);
+ }
+ assert.equal(engine.validate(sample().map(b=>({...b,volume:0}))).ok,true);
+});
 console.log('Regression tests passed');
