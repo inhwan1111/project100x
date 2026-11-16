@@ -146,4 +146,11 @@ test('fractional and unsafe OHLCV volumes are rejected',()=>{
  }
  assert.equal(engine.validate(sample().map(b=>({...b,volume:0}))).ok,true);
 });
+test('negative integer volume is rejected by validation and backtest',()=>{
+ for(const volume of [-1,-100]){
+  const b=sample();b[40].volume=volume;
+  assert.equal(engine.validate(b).ok,false);
+  assert.equal(engine.backtest(b,'추세 눌림목').ok,false);
+ }
+});
 console.log('Regression tests passed');
