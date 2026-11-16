@@ -10,7 +10,7 @@ function validate(bars){
  let prev='';
  for(const b of bars){
   if(!b||typeof b.date!=='string'||!/^\d{4}-\d{2}-\d{2}$/.test(b.date)||!Number.isFinite(Date.parse(b.date+'T00:00:00Z'))||new Date(b.date+'T00:00:00Z').toISOString().slice(0,10)!==b.date||b.date<=prev)return {ok:false,reason:'날짜 중복·역순·오류'};
-  if(![b.open,b.high,b.low,b.close,b.volume].every(x=>typeof x==='number'&&Number.isFinite(x))||Math.min(b.open,b.high,b.low,b.close)<=0||(!Number.isSafeInteger(b.volume))||b.high<Math.max(b.open,b.close,b.low)||b.low>Math.min(b.open,b.close,b.high))return {ok:false,reason:'OHLCV 값 오류'};
+  if(![b.open,b.high,b.low,b.close,b.volume].every(x=>typeof x==='number'&&Number.isFinite(x))||Math.min(b.open,b.high,b.low,b.close)<=0||(!Number.isSafeInteger(b.volume))||b.volume<0||b.high<Math.max(b.open,b.close,b.low)||b.low>Math.min(b.open,b.close,b.high))return {ok:false,reason:'OHLCV 값 오류'};
   prev=b.date;
  }
  return {ok:true};
