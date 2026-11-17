@@ -153,4 +153,20 @@ test('negative integer volume is rejected by validation and backtest',()=>{
   assert.equal(engine.backtest(b,'추세 눌림목').ok,false);
  }
 });
+test('signal safely rejects sparse or invalid historical windows',()=>{
+ for(const strategy of engine.strategies){
+  for(const mutate of [b=>delete b[39],b=>b[39]=null,b=>b[39].close=NaN,b=>b[39].volume=-1]){
+   const b=sample(65);mutate(b);
+   assert.equal(engine.signal(b,40,strategy).active,false,strategy);
+  }
+ }
+});
+test('signal does not inspect the entry bar',()=>{
+ const b=sample(65);
+ for(const strategy of engine.strategies){
+  const before=engine.signal(b,40,strategy);
+  const changed=sample(65);changed[40]=null;
+  assert.deepEqual(engine.signal(changed,40,strategy),before,strategy);
+ }
+});
 console.log('Regression tests passed');
