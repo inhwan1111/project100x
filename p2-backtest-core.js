@@ -17,7 +17,10 @@ function validate(bars){
 }
 function signal(bars,i,strategy){
  if(!Array.isArray(bars)||!Number.isInteger(i)||i<30||i>=bars.length||!strategies.includes(strategy))return {active:false,reason:'지표 부족·인덱스 범위 오류 또는 미지원 전략'};
- const recent=bars.slice(i-20,i),last=bars[i-1],ma20=mean(recent.map(x=>x.close)),vol20=mean(recent.map(x=>x.volume));
+ // Guard sparse or malformed historical windows without reading the entry bar.
+ const history=Array.from({length:21},(_,offset)=>bars[i-21+offset]);
+ if(history.some(b=>!b||![b.open,b.high,b.low,b.close,b.volume].every(x=>typeof x==='number'&&Number.isFinite(x))||Math.min(b.open,b.high,b.low,b.close)<=0||!Number.isSafeInteger(b.volume)||b.volume<0))return {active:false,reason:'과거 OHLCV 데이터 오류'};
+ const recent=history.slice(1),last=history[20],ma20=mean(recent.map(x=>x.close)),vol20=mean(recent.map(x=>x.volume));
  const prior=bars.slice(i-21,i-1),high20=Math.max(...prior.map(x=>x.high));
  if(strategy==='추세 눌림목')return {active:last.close>ma20&&last.low<=ma20*1.015&&last.close>bars[i-6].close,reason:'20일선 근처 상승 추세'};
  if(strategy==='거래량 돌파')return {active:last.close>high20&&last.volume>vol20*1.5,reason:'전고점 및 거래량 돌파'};
