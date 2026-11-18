@@ -169,4 +169,17 @@ test('signal does not inspect the entry bar',()=>{
   assert.deepEqual(engine.signal(changed,40,strategy),before,strategy);
  }
 });
+test('signal rejects internally inconsistent historical OHLC bars',()=>{
+ for(const strategy of engine.strategies){
+  for(const mutate of [
+   b=>{b[39].high=b[39].close-1;},
+   b=>{b[39].low=b[39].close+1;},
+   b=>{b[39].high=b[39].low-1;}
+  ]){
+   const b=sample(65);mutate(b);
+   assert.equal(engine.validate(b).ok,false,'global validation must reject invalid OHLC');
+   assert.equal(engine.signal(b,40,strategy).active,false,'signal must reject invalid OHLC: '+strategy);
+  }
+ }
+});
 console.log('Regression tests passed');
