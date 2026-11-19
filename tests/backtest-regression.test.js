@@ -182,4 +182,25 @@ test('signal rejects internally inconsistent historical OHLC bars',()=>{
   }
  }
 });
+test('signal rejects malformed, duplicate or reversed historical dates',()=>{
+ for(const strategy of engine.strategies){
+  for(const mutate of [
+   b=>{b[39].date=b[38].date;},
+   b=>{b[39].date=b[37].date;},
+   b=>{b[39].date='2026-02-30';},
+   b=>{b[39].date='invalid';},
+   b=>{delete b[39].date;}
+  ]){
+   const b=sample(65);mutate(b);
+   assert.equal(engine.signal(b,40,strategy).active,false,strategy);
+  }
+ }
+});
+test('historical date guard does not inspect the entry bar',()=>{
+ for(const strategy of engine.strategies){
+  const b=sample(65),before=engine.signal(b,40,strategy);
+  b[40]=null;
+  assert.deepEqual(engine.signal(b,40,strategy),before,strategy);
+ }
+});
 console.log('Regression tests passed');
