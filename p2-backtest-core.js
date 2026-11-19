@@ -19,6 +19,12 @@ function signal(bars,i,strategy){
  if(!Array.isArray(bars)||!Number.isInteger(i)||i<30||i>=bars.length||!strategies.includes(strategy))return {active:false,reason:'지표 부족·인덱스 범위 오류 또는 미지원 전략'};
  // Guard sparse or malformed historical windows without reading the entry bar.
  const history=Array.from({length:21},(_,offset)=>bars[i-21+offset]);
+ // A direct signal call must not silently accept duplicate, reversed or invalid historical dates.
+ let previousDate='';
+ for(const b of history){
+  if(!b||typeof b.date!=='string'||!/^\d{4}-\d{2}-\d{2}$/.test(b.date)||!Number.isFinite(Date.parse(b.date+'T00:00:00Z'))||new Date(b.date+'T00:00:00Z').toISOString().slice(0,10)!==b.date||b.date<=previousDate)return {active:false,reason:'과거 날짜 중복·역순·오류'};
+  previousDate=b.date;
+ }
  if(history.some(b=>!b||![b.open,b.high,b.low,b.close,b.volume].every(x=>typeof x==='number'&&Number.isFinite(x))||Math.min(b.open,b.high,b.low,b.close)<=0||!Number.isSafeInteger(b.volume)||b.volume<0||b.high<Math.max(b.open,b.close,b.low)||b.low>Math.min(b.open,b.close,b.high)))return {active:false,reason:'과거 OHLCV 데이터 오류'};
  const recent=history.slice(1),last=history[20],ma20=mean(recent.map(x=>x.close)),vol20=mean(recent.map(x=>x.volume));
  const prior=bars.slice(i-21,i-1),high20=Math.max(...prior.map(x=>x.high));
