@@ -36,3 +36,11 @@ assert.throws(()=>parse(header+'\nQQQ,2026-10-30,690.49,USD,"manual"garbage'),/�
 assert.throws(()=>parse(header+'\nQQQ,2026-10-30,690.49,USD,"manual""'),/닫히지/);
 assert.equal(parse(header+'\nQQQ,2026-10-30,690.49,USD,"manual ""verified"""')[0].source,'manual "verified"');
 console.log('PASS v0.9 CSV parser and freshness: 20 assertions');
+// Numeric parsing must not silently accept JavaScript-specific notation or whitespace-only prices.
+for(const invalid of ['0x10','0b101','1e3','+690.49','690.49USD','  ','690  .49']){
+ assert.throws(()=>parse(header+'\nQQQ,2026-10-30,'+invalid+',USD,manual'),/유효하지/,invalid);
+}
+assert.equal(parse(header+'\nQQQ,2026-10-30,.49,USD,manual')[0].close,0.49);
+assert.equal(parse(header+'\nQQQ,2026-10-30,690.,USD,manual')[0].close,690);
+console.log('PASS strict decimal close validation: 9 assertions');
+
